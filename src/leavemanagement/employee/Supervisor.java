@@ -6,10 +6,8 @@ public class Supervisor extends Employee {
 
     // CONSTRUCTOR
 
-    public Supervisor(int id, String name, String department, String email, int vacationBal, int sickBal, int emergencyBal) {
-
-        super(id, name, department, email, vacationBal, sickBal, emergencyBal);
-
+    public Supervisor(int id, String name, String department, String email) {
+        super(id, name, department, email);
     }
 
     // REVIEW REQUEST - Shows the status and identifications of the leave request

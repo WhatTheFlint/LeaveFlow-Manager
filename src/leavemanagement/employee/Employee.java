@@ -10,14 +10,14 @@ public class Employee {
 
     // CONSTRUCTOR
 
-    public Employee(int id, String name, String department, String email, int vacationBal, int sickBal, int emergencyBal){
+    public Employee(int id, String name, String department, String email) {
         this.id = id;
         this.name = name;
         this.department = department;
         this.email = email;
-        this.vacationBal = vacationBal;
-        this.sickBal = sickBal;
-        this.emergencyBal = emergencyBal;
+        this.vacationBal = 15;
+        this.sickBal = 10;
+        this.emergencyBal = 5;
     }
 
     // GETTERS
@@ -64,24 +64,28 @@ public class Employee {
         this.email = email;
     }
 
-    public void setVacationBal(int vacationBal){
-        this.vacationBal = vacationBal;
+    public void setVacationBal(int v){
+        vacationBal = v;
     }
 
-    public void setSickBal(int sickBal){
-        this.sickBal = sickBal;
+    public void setSickBal(int s){
+        sickBal = s;
     }
 
-    public void setEmergencyBal(int emergencyBal){
-        this.emergencyBal = emergencyBal;
+    public void setEmergencyBal(int e){
+        emergencyBal = e;
+    }
+
+    public int getTotalLeaveBalance() {
+        return vacationBal + sickBal + emergencyBal;
     }
 
     // METHOD TO VIEW BALANCE ( VACATION AND SICK BALANCE )
 
-    public void viewBalances(){
+    public void viewBalances() {
         System.out.println("Vacation Balance: " + vacationBal);
         System.out.println("Sick Balance: " + sickBal);
         System.out.println("Emergency Balance: " + emergencyBal);
+        System.out.println("TOTAL Leave Balance (Year): " + getTotalLeaveBalance());
     }
-
 }
