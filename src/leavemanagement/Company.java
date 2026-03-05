@@ -5,6 +5,7 @@ import leavemanagement.employee.RegularEmployee;
 import leavemanagement.employee.Supervisor;
 import leavemanagement.employee.HRAdmin;
 
+//Add employee lookup and role-based creation in Company
 public class Company {
     private ArrayList<Employee> employees;
 
