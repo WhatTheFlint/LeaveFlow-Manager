@@ -1,9 +1,7 @@
 package leavemanagement;
-import java.util.Scanner;
+
+import java.util.*;
 import leavemanagement.employee.Employee;
-import leavemanagement.employee.RegularEmployee;
-import leavemanagement.employee.Supervisor;
-import leavemanagement.employee.HRAdmin;
 import leavemanagement.request.LeaveRequest;
 import leavemanagement.service.LeaveService;
 import leavemanagement.service.ApprovalService;
@@ -11,6 +9,7 @@ import leavemanagement.service.BalanceService;
 import leavemanagement.service.ReportService;
 
 public class LeaveManagementSystem {
+
     private Scanner sc;
     private boolean systemRunning;
     private Company company;
@@ -21,71 +20,82 @@ public class LeaveManagementSystem {
     private Employee currentUser;
 
     public LeaveManagementSystem() {
+
         sc = new Scanner(System.in);
         systemRunning = true;
+
         company = new Company();
         leaveService = new LeaveService();
         balanceService = new BalanceService();
         approvalService = new ApprovalService(leaveService, company, balanceService);
         reportService = new ReportService(company);
-
     }
+
     public void startSystem() {
+
         while (systemRunning) {
-            System.out.println("------------------------------------");
-            System.out.println("\t\t Leave Flow Manager\t\t");
-            System.out.println("------------------------------------");
-            System.out.println("\t\t\t   LOGIN\t\t");
-            System.out.print("Enter Employee ID (1 - Employee, 2 - Supervisor, 3 - HR Admin): ");
+
+            System.out.println("\n==================================================");
+            System.out.println("                LEAVE FLOW MANAGER");
+            System.out.println("==================================================\n");
+            System.out.println("--------------------------------------------------");
+            System.out.println("                      LOGIN");
+            System.out.println("--------------------------------------------------");
+
+            System.out.print("Enter Employee ID: ");
             int id = sc.nextInt();
             sc.nextLine();
+
+            System.out.print("Enter Employee Name: ");
+            String name = sc.nextLine();
+
+            System.out.print("Enter Department: ");
+            String department = sc.nextLine();
+
+            System.out.print("Enter Email: ");
+            String email = sc.nextLine();
 
             String idStr = String.valueOf(id);
             char firstDigit = idStr.charAt(0);
 
-            if (firstDigit == '1') {
-                currentUser = company.getOrCreateEmployee(id, "", "", "", "EMPLOYEE");
-            } else if (firstDigit == '2') {
-                currentUser = company.getOrCreateEmployee(id, "", "", "", "SUPERVISOR");
-            } else if (firstDigit == '3') {
-                currentUser = company.getOrCreateEmployee(id, "", "", "", "HR");
-            } else {
-                currentUser = null;
-                System.out.println("\nInvalid ID.");
-                continue;
-            }
+            if (firstDigit == '1' && !department.equalsIgnoreCase("HR")) {
 
-            System.out.print("Enter Employee Name: ");
-            currentUser.setName(sc.nextLine());
+                currentUser = company.getOrCreateEmployee(id, name, department, email, "EMPLOYEE");
 
-            System.out.print("Enter Department: ");
-            currentUser.setDepartment(sc.nextLine());
-
-            System.out.print("Enter Email: ");
-            currentUser.setEmail(sc.nextLine());
-
-            if (firstDigit == '1' && !currentUser.getDepartment().equalsIgnoreCase("HR")) {
-                System.out.println("\nLogin Successful as Employee!");
-                System.out.println("Welcome, " + currentUser.getName());
+                System.out.println("\n✔ Login Successful as Employee!");
                 employeeMenu();
 
-            } else if (firstDigit == '2' && !currentUser.getDepartment().equalsIgnoreCase("HR")) {
-                System.out.println("\nLogin Successful as Supervisor!");
-                System.out.println("Welcome, " + currentUser.getName());
+            } else if (firstDigit == '2' && !department.equalsIgnoreCase("HR")) {
+
+                currentUser = company.getOrCreateEmployee(id, name, department, email, "SUPERVISOR");
+
+                System.out.println("\n✔ Login Successful as Supervisor!");
                 supervisorMenu();
 
-            } else if (firstDigit == '3' && currentUser.getDepartment().equalsIgnoreCase("HR")) {
-                System.out.println("\nLogin Successful as HR Admin!");
-                System.out.println("Welcome, " + currentUser.getName());
+            } else if (firstDigit == '3' && department.equalsIgnoreCase("HR")) {
+
+                currentUser = company.getOrCreateEmployee(id, name, department, email, "HR");
+
+                System.out.println("\n✔ Login Successful as HR Admin!");
                 hrAdminMenu();
 
             } else {
+
                 currentUser = null;
-                System.out.println("\nInvalid credentials based on company rules.");
+                System.out.println("\n✖ Invalid credentials based on company rules.");
+            }
+
+            System.out.println("\n--------------------------------------------------");
+            System.out.print("Do you want to login again? (yes/no): ");
+            String choice = sc.nextLine();
+
+            if (choice.equalsIgnoreCase("no")) {
+
+                systemRunning = false;
+                System.out.println("\nExiting system...");
             }
         }
     }
-
 
     // EMPLOYEE MENU
     public void employeeMenu() {
@@ -93,47 +103,58 @@ public class LeaveManagementSystem {
         boolean isLoggedIn = true;
 
         while (isLoggedIn) {
-            System.out.println("\n------Employee Menu------");
+
+            System.out.println("\n==================================================");
+            System.out.println("                   EMPLOYEE MENU");
+            System.out.println("==================================================");
+
             System.out.println("[1] File Leave Request");
             System.out.println("[2] View Leave Status");
             System.out.println("[3] View Leave Balance");
             System.out.println("[4] Logout");
-            System.out.print("Choose Option: ");
+
+            System.out.print("\nChoose Option: ");
             int option = sc.nextInt();
             sc.nextLine();
 
             switch (option) {
+
                 case 1:
                     openLeaveForm();
                     break;
+
                 case 2:
                     viewMyLeaveStatus();
                     break;
+
                 case 3:
                     viewMyBalance();
                     break;
+
                 case 4:
-                    System.out.println("Logging out...");
+                    System.out.println("\nLogging out...");
                     isLoggedIn = false;
                     currentUser = null;
                     break;
 
                 default:
-                    System.out.println("Invalid option!");
+                    System.out.println("\nInvalid option!");
             }
         }
     }
 
-    //SUPERVISOR MENU
+    // SUPERVISOR MENU
     public void supervisorMenu() {
 
         boolean isLoggedIn = true;
-
-        boolean hasViewedPending = false; // ✅ NEW
+        boolean hasViewedPending = false;
 
         while (isLoggedIn) {
 
-            System.out.println("\n------Supervisor Menu------");
+            System.out.println("\n==================================================");
+            System.out.println("                 SUPERVISOR MENU");
+            System.out.println("==================================================");
+
             System.out.println("[1] File Leave Request");
             System.out.println("[2] View Leave Status");
             System.out.println("[3] View Leave Balance");
@@ -141,11 +162,13 @@ public class LeaveManagementSystem {
             System.out.println("[5] Approve Leave Request");
             System.out.println("[6] Reject Leave Request");
             System.out.println("[7] Logout");
-            System.out.print("Choose option: ");
+
+            System.out.print("\nChoose option: ");
             int option = sc.nextInt();
             sc.nextLine();
 
             switch (option) {
+
                 case 1:
                     openLeaveForm();
                     break;
@@ -164,55 +187,57 @@ public class LeaveManagementSystem {
                     break;
 
                 case 5:
-
                     if (!hasViewedPending) {
-                        System.out.println("You must view pending leave requests first (Option 4).");
-
+                        System.out.println("\nYou must view pending leave requests first (Option 4).");
                     } else {
-                        approveRequestFlow("Supervisor Approved");
+                        approveRequestFlow();
                     }
                     break;
 
                 case 6:
-
                     if (!hasViewedPending) {
-                        System.out.println("You must view pending leave requests first (Option 4).");
-
+                        System.out.println("\nYou must view pending leave requests first (Option 4).");
                     } else {
-                        rejectRequestFlow("Supervisor Rejected");
+                        rejectRequestFlow();
                     }
                     break;
 
                 case 7:
-                    System.out.println("Logging out...");
+                    System.out.println("\nLogging out...");
                     isLoggedIn = false;
                     currentUser = null;
                     break;
 
                 default:
-                    System.out.println("Invalid option!");
+                    System.out.println("\nInvalid option!");
             }
         }
     }
 
-    //HR ADMIN MENU
+    // HR ADMIN MENU
     public void hrAdminMenu() {
 
         boolean isLoggedIn = true;
 
         while (isLoggedIn) {
-            System.out.println("\n------HR Admin Menu------");
+
+            System.out.println("\n==================================================");
+            System.out.println("                   HR ADMIN MENU");
+            System.out.println("==================================================");
+
             System.out.println("[1] File Leave Request");
             System.out.println("[2] View Leave Status");
             System.out.println("[3] View Leave Balance");
             System.out.println("[4] View All Leave Records");
             System.out.println("[5] Generate Leave Report");
             System.out.println("[6] Logout");
-            System.out.print("Choose option: ");
+
+            System.out.print("\nChoose option: ");
             int option = sc.nextInt();
             sc.nextLine();
 
             switch (option) {
+
                 case 1:
                     openLeaveForm();
                     break;
@@ -224,6 +249,7 @@ public class LeaveManagementSystem {
                 case 3:
                     viewMyBalance();
                     break;
+
                 case 4:
                     viewAllRecords();
                     break;
@@ -233,17 +259,16 @@ public class LeaveManagementSystem {
                     break;
 
                 case 6:
-                    System.out.println("Logging out...");
+                    System.out.println("\nLogging out...");
                     isLoggedIn = false;
                     currentUser = null;
                     break;
 
                 default:
-                    System.out.println("Invalid option!");
+                    System.out.println("\nInvalid option!");
             }
         }
     }
-
 
     private void openLeaveForm() {
 
@@ -252,7 +277,10 @@ public class LeaveManagementSystem {
             return;
         }
 
-        System.out.println("\n--- LEAVE REQUEST FORM ---");
+        System.out.println("\n==================================================");
+        System.out.println("                LEAVE REQUEST FORM");
+        System.out.println("==================================================");
+
         System.out.print("Enter Request ID: ");
         int requestId = sc.nextInt();
         sc.nextLine();
@@ -260,10 +288,10 @@ public class LeaveManagementSystem {
         System.out.print("Enter Leave Type (VL/SL/EL): ");
         String type = sc.nextLine();
 
-        System.out.print("Enter Start Date (e.g., 2026-03-02): ");
+        System.out.print("Enter Start Date (YYYY-MM-DD): ");
         String startDate = sc.nextLine();
 
-        System.out.print("Enter End Date (e.g., 2026-03-05): ");
+        System.out.print("Enter End Date (YYYY-MM-DD): ");
         String endDate = sc.nextLine();
 
         System.out.print("Enter Number of Days: ");
@@ -285,19 +313,25 @@ public class LeaveManagementSystem {
 
         leaveService.addRequest(req);
 
-        System.out.println("\nLeave request submitted successfully!");
+        System.out.println("\n✔ Leave request submitted successfully!");
     }
+
     private void viewMyLeaveStatus() {
 
         if (currentUser == null) return;
-        System.out.println("\n====== MY LEAVE REQUESTS ======");
+
+        System.out.println("\n==================================================");
+        System.out.println("                MY LEAVE REQUESTS");
+        System.out.println("==================================================");
 
         boolean found = false;
 
         for (LeaveRequest r : leaveService.getAllRequests()) {
 
             if (r.getEmployeeId() == currentUser.getId()) {
-                r.displayRequest();
+
+                Employee emp = company.findEmployeeById(r.getEmployeeId());
+                r.displayRequest(emp);
                 found = true;
             }
         }
@@ -310,21 +344,29 @@ public class LeaveManagementSystem {
     private void viewMyBalance() {
 
         if (currentUser == null) return;
-        System.out.println("\n=== MY LEAVE BALANCE ===");
-        currentUser.viewBalances();
 
+        System.out.println("\n==================================================");
+        System.out.println("                 MY LEAVE BALANCE");
+        System.out.println("==================================================");
+
+        currentUser.viewBalances();
     }
+
     private void viewPendingRequests() {
 
-        System.out.println("\n=== PENDING REQUESTS ===");
+        System.out.println("\n==================================================");
+        System.out.println("                 PENDING REQUESTS");
+        System.out.println("==================================================");
+
         boolean found = false;
 
         for (LeaveRequest r : leaveService.getAllRequests()) {
 
             if (r.getStatus().equalsIgnoreCase("Pending")) {
-                r.displayRequest();
-                found = true;
 
+                Employee emp = company.findEmployeeById(r.getEmployeeId());
+                r.displayRequest(emp);
+                found = true;
             }
         }
 
@@ -333,28 +375,43 @@ public class LeaveManagementSystem {
         }
     }
 
-    private void approveRequestFlow(String approvedStatus) {
+    private void approveRequestFlow() {
+
+        System.out.println("\n==================================================");
+        System.out.println("                 APPROVE REQUEST");
+        System.out.println("==================================================");
+
         System.out.print("Enter Request ID to approve: ");
         int requestId = sc.nextInt();
         sc.nextLine();
 
-        boolean ok = approvalService.approve(requestId, approvedStatus);
+        boolean ok = approvalService.approve(requestId);
 
-        if (!ok) System.out.println("Request not found.");
+        if (!ok)
+            System.out.println("Request not found.");
     }
-    private void rejectRequestFlow(String rejectedStatus) {
+
+    private void rejectRequestFlow() {
+
+        System.out.println("\n==================================================");
+        System.out.println("                  REJECT REQUEST");
+        System.out.println("==================================================");
 
         System.out.print("Enter Request ID to reject: ");
         int requestId = sc.nextInt();
         sc.nextLine();
 
-        boolean ok = approvalService.reject(requestId, rejectedStatus);
+        boolean ok = approvalService.reject(requestId);
 
-        if (!ok) System.out.println("Request not found.");
+        if (!ok)
+            System.out.println("Request not found.");
     }
 
     private void viewAllRecords() {
-        System.out.println("\n====== ALL LEAVE RECORDS ======");
+
+        System.out.println("\n==================================================");
+        System.out.println("                ALL LEAVE RECORDS");
+        System.out.println("==================================================");
 
         if (leaveService.getAllRequests().isEmpty()) {
             System.out.println("No records yet.");
@@ -362,21 +419,29 @@ public class LeaveManagementSystem {
         }
 
         for (LeaveRequest r : leaveService.getAllRequests()) {
-            r.displayRequest();
+
+            Employee emp = company.findEmployeeById(r.getEmployeeId());
+            r.displayRequest(emp);
         }
     }
 
     private void generateReportMenu() {
-        System.out.println("\n------ REPORT MENU ------");
+
+        System.out.println("\n==================================================");
+        System.out.println("                    REPORT MENU");
+        System.out.println("==================================================");
+
         System.out.println("[1] All Requests");
         System.out.println("[2] Pending Requests");
         System.out.println("[3] Approved Requests");
         System.out.println("[4] Rejected Requests");
-        System.out.print("Choose option: ");
+
+        System.out.print("\nChoose option: ");
         int choice = sc.nextInt();
         sc.nextLine();
 
         switch (choice) {
+
             case 1:
                 reportService.generateAllRequestsReport(leaveService.getAllRequests());
                 break;
