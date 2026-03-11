@@ -3,6 +3,7 @@ package leavemanagement.leavetype;
 // EMERGENCY LEAVE
 public class EmergencyLeave implements LeaveType {
 
+    private int leaveTypeId = 3;
     private String leaveCode = "EL";
     private String leaveName = "Emergency Leave";
     private int maxDaysPerYear = 5;
@@ -10,6 +11,8 @@ public class EmergencyLeave implements LeaveType {
     private boolean isPaid = false;
 
     //GETTERS
+    public int getLeaveTypeId() { return leaveTypeId; }
+
     public String getLeaveCode() {
         return leaveCode;
     }

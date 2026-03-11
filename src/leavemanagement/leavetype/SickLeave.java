@@ -3,6 +3,7 @@ package leavemanagement.leavetype;
 // SICK LEAVE
 public class SickLeave implements LeaveType {
 
+    private int leaveTypeId = 2;
     private String leaveCode = "SL";
     private String leaveName = "Sick Leave";
     private int maxDaysPerYear = 10;
@@ -11,6 +12,9 @@ public class SickLeave implements LeaveType {
 
 
     //GETTERS
+
+    public int getLeaveTypeId() { return leaveTypeId; }
+
     public String getLeaveCode() {
         return leaveCode;
     }
