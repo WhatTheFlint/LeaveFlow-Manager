@@ -1,23 +1,26 @@
 package leavemanagement.request;
 
 import leavemanagement.employee.Employee;
+import leavemanagement.leavetype.LeaveType;
 
 public class LeaveRequest {
 
     private int requestId;
     private int employeeId;
-    private String leaveType;
+    private LeaveType leaveType;
+    private String dateFiled; // added date filed -plent
     private String startDate;
     private String endDate;
     private int days;
     private String reason;
     private String status;
 
-    public LeaveRequest(int requestId, int employeeId, String leaveType, String startDate, String endDate, int days, String reason) {
+    public LeaveRequest(int requestId, int employeeId, LeaveType leaveType, String dateFiled,String startDate, String endDate, int days, String reason) {
 
         this.requestId = requestId;
         this.employeeId = employeeId;
         this.leaveType = leaveType;
+        this.dateFiled = dateFiled; // added in constructor -plent
         this.startDate = startDate;
         this.endDate = endDate;
         this.days = days;
@@ -29,13 +32,27 @@ public class LeaveRequest {
 
     public int getEmployeeId() { return employeeId; }
 
-    public String getLeaveType() { return leaveType; }
+    public LeaveType getLeaveType() { return leaveType; }
+
+    public String getDateFiled() {
+        return dateFiled;  // getters sa date filed -plent
+    }
 
     public int getDays() { return days; }
 
-    public String getStatus() { return status; }
+    public String getStatus() {
+        return status;
+    }
 
-    public void setStatus(String status) { this.status = status; }
+    public void setStatus(String status) {
+
+        if (status.equals("Pending") || status.equals("Approved") || status.equals("Rejected")) {
+            this.status = status;
+        } else {
+            System.out.println("Invalid status value.");
+        }
+
+    }
 
     public void displayRequest(Employee emp) {
 
@@ -54,6 +71,7 @@ public class LeaveRequest {
         }
 
         System.out.println("Leave Type : " + leaveType);
+        System.out.println("Date Filed : " + dateFiled); //included in display  -plent
         System.out.println("Start Date : " + startDate);
         System.out.println("End Date   : " + endDate);
         System.out.println("Days       : " + days);
