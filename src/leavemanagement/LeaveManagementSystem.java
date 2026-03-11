@@ -1,5 +1,6 @@
 package leavemanagement;
 
+import java.time.LocalDate;
 import java.util.*;
 import leavemanagement.employee.Employee;
 import leavemanagement.request.LeaveRequest;
@@ -7,6 +8,10 @@ import leavemanagement.service.LeaveService;
 import leavemanagement.service.ApprovalService;
 import leavemanagement.service.BalanceService;
 import leavemanagement.service.ReportService;
+import leavemanagement.leavetype.LeaveType;
+import leavemanagement.leavetype.VacationLeave;
+import leavemanagement.leavetype.SickLeave;
+import leavemanagement.leavetype.EmergencyLeave;
 
 public class LeaveManagementSystem {
 
@@ -62,27 +67,33 @@ public class LeaveManagementSystem {
 
                 currentUser = company.getOrCreateEmployee(id, name, department, email, "EMPLOYEE");
 
-                System.out.println("\n✔ Login Successful as Employee!");
+                currentUser.resetBalancesIfNewYear();
+
+                System.out.println("\nLogin Successful as Employee!");
                 employeeMenu();
 
             } else if (firstDigit == '2' && !department.equalsIgnoreCase("HR")) {
 
                 currentUser = company.getOrCreateEmployee(id, name, department, email, "SUPERVISOR");
 
-                System.out.println("\n✔ Login Successful as Supervisor!");
+                currentUser.resetBalancesIfNewYear();
+
+                System.out.println("\nLogin Successful as Supervisor!");
                 supervisorMenu();
 
             } else if (firstDigit == '3' && department.equalsIgnoreCase("HR")) {
 
                 currentUser = company.getOrCreateEmployee(id, name, department, email, "HR");
 
-                System.out.println("\n✔ Login Successful as HR Admin!");
+                currentUser.resetBalancesIfNewYear();
+
+                System.out.println("\nLogin Successful as HR Admin!");
                 hrAdminMenu();
 
             } else {
 
                 currentUser = null;
-                System.out.println("\n✖ Invalid credentials based on company rules.");
+                System.out.println("\nInvalid credentials based on company rules.");
             }
 
             System.out.println("\n--------------------------------------------------");
@@ -286,7 +297,20 @@ public class LeaveManagementSystem {
         sc.nextLine();
 
         System.out.print("Enter Leave Type (VL/SL/EL): ");
-        String type = sc.nextLine();
+        String leaveInput = sc.nextLine();
+
+        LeaveType type;
+
+        if (leaveInput.equalsIgnoreCase("VL")) {
+            type = new VacationLeave();
+        } else if (leaveInput.equalsIgnoreCase("SL")) {
+            type = new SickLeave();
+        } else if (leaveInput.equalsIgnoreCase("EL")) {
+            type = new EmergencyLeave();
+        } else {
+            System.out.println("Error: Invalid leave type.");
+            return;
+        }
 
         System.out.print("Enter Start Date (YYYY-MM-DD): ");
         String startDate = sc.nextLine();
@@ -298,13 +322,42 @@ public class LeaveManagementSystem {
         int days = sc.nextInt();
         sc.nextLine();
 
+        if (days <= 0) {
+            System.out.println("Error: Leave days must be greater than zero.");
+            return;
+        }
+
+//Added Validation:
+// Prevent employees from filing a leave request
+// if the requested days exceed their available leave balance.
+        int availableBalance = 0;
+
+        if (type.getLeaveCode().equalsIgnoreCase("VL")) {
+            availableBalance = currentUser.getVacationBal();
+        }
+        else if (type.getLeaveCode().equalsIgnoreCase("SL")) {
+            availableBalance = currentUser.getSickBal();
+        }
+        else if (type.getLeaveCode().equalsIgnoreCase("EL")) {
+            availableBalance = currentUser.getEmergencyBal();
+        }
+
+        if (days > availableBalance) {
+            System.out.println("Error: Requested days exceed your available "
+                    + type.getLeaveName() + " balance.");
+            return;
+        }
+
         System.out.print("Enter Reason: ");
         String reason = sc.nextLine();
+
+        String dateFiled = LocalDate.now().toString();
 
         LeaveRequest req = new LeaveRequest(
                 requestId,
                 currentUser.getId(),
                 type,
+                dateFiled,
                 startDate,
                 endDate,
                 days,
